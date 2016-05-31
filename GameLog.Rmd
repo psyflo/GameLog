@@ -8,7 +8,7 @@ output: html_document
 ### Datensatz einlesen
 
 ```{r}
-df <- read.table(file="data_gamelog_anon.csv", header = TRUE, sep = ";", dec = ",")
+df <- read.csv(file="data_gamelog_anon.csv")
 #head(df)
 ```
 
