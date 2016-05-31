@@ -1,0 +1,178 @@
+---
+title: "GameLog"
+author: "Florian Brühlmann"
+date: "31. Mai 2016"
+output: html_document
+---
+
+### Datensatz einlesen
+
+```{r}
+df <- read.table(file="data_gamelog_anon.csv", header = TRUE, sep = ";", dec = ",")
+#head(df)
+```
+
+Der Datensatz besteht aus allen Items der Fragebögen, sowie den Mittelwerten pro Versuchsperson auf den Skalen des PENS (`aut`, `comp`, `ppres`, `epres`, `npres`), den Skalen des GEQ (`geq_im`, `geq_flow`, `geq_comp`, `geq_tens`, `geq_cha`, `geq_pa`, `geq_na`), der Contemplativness (`cont`) und dem Enjoyment/Intrinisc Motivation (`im`). Zusätzlich hat es einen Faktor `game` mit allen Spielen als Stufen. 
+
+```{r}
+# Enjoyment
+library(ggplot2)
+df$Steamname <- df$ID
+means <- aggregate(im ~  game, df, mean)
+means$rank <- rank(-means$im)
+means
+min(df$im)
+max(df$im)
+df$game <- factor(df$game, levels = as.character(means[ order(means$rank), "game"]))
+ggplot(df,aes(y=im, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Enjoyment [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none")
+
+
+ggplot(df[df$game %in% levels(df$game)[8:13],],aes(y=im, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Enjoyment [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none")
+
+
+# Positive affect
+means <- aggregate(geq_pa ~  game, df, mean)
+means$rank <- rank(-means[,2])
+means
+min(df$geq_pa)
+max(df$geq_pa)
+df$game <- factor(df$game, levels = as.character(means[ order(means$rank), "game"]))
+ggplot(df,aes(y=geq_pa, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Positive Affect [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Competence
+means <- aggregate(geq_comp ~  game, df, mean)
+means$rank <- rank(-means[,2])
+means
+min(df$geq_comp)
+max(df$geq_comp)
+df$game <- factor(df$game, levels = as.character(means[ order(means$rank), "game"]))
+ggplot(df,aes(y=geq_comp, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Competence [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Challenge
+means <- aggregate(geq_cha ~  game, df, mean)
+means$rank <- rank(-means[,2])
+means
+min(df$geq_cha)
+max(df$geq_cha)
+df$game <- factor(df$game, levels = as.character(means[ order(means$rank), "game"]))
+ggplot(df,aes(y=geq_cha, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Challenge [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Challenge
+means <- aggregate(cont ~  game, df, mean)
+means$rank <- rank(-means[,2])
+means
+min(df$cont)
+max(df$cont)
+df$game <- factor(df$game, levels = as.character(means[ order(means$rank), "game"]))
+ggplot(df,aes(y=cont, x=game)) + geom_boxplot()  + geom_jitter(aes(color=Steamname), position = position_jitter(width = .2, height = 0), alpha = 0.5) +
+  scale_y_continuous(name="Contemplativeness [1-7]",breaks = seq(1,7, 1), limits = c(1,7)) +
+  stat_summary(fun.y = "mean", geom = "point", shape= 23, size= 3, fill= "white") +
+  scale_x_discrete(name="Game") + 
+  theme_bw() + theme(legend.position="none") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+
+
+ggplot(df, aes(x=geq_cha, y=im)) +
+  geom_point(aes(color=game), position = "jitter") +
+  geom_smooth(method=lm, se=F)       +   # Add a loess smoothed fit curve with confidence region
+  scale_x_continuous(name="Challenge [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  scale_y_continuous(name="Enjoyment [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  theme_bw() + theme(legend.position="none") + annotate("text", x=1.5, y=7, label="r_t = 0.4", size = 10)
+
+library(psych)
+cor.ci(df[,c("im","geq_cha")], method = "kendall")
+
+
+ggplot(df, aes(x=geq_comp, y=im)) +
+  geom_point(aes(color=game), position = "jitter") +
+  geom_smooth(method=lm, se=F)       +   # Add a loess smoothed fit curve with confidence region
+  scale_x_continuous(name="Competence [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  scale_y_continuous(name="Enjoyment [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  theme_bw() + theme(legend.position="none") + annotate("text", x=1.5, y=7, label="r_t = 0.37", size = 10)
+
+cor.ci(df[,c("im","geq_comp")], method = "kendall")
+
+df <- df[df$game != "Lieblingsspiel",]
+
+ggplot(df[df$game != "Lieblingsspiel",], aes(x=cont, y=im)) +
+  geom_point(aes(color=game), position = "jitter") +
+  geom_smooth(method=lm, se=F)       +   # Add a loess smoothed fit curve with confidence region
+  scale_x_continuous(name="Contemplativeness [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  scale_y_continuous(name="Enjoyment [1-7]",breaks = seq(1,7, 1), limits = c(0.9,7.1)) +
+  theme_bw() + theme(legend.position="none") + annotate("text", x=1.5, y=7, label="r_t = 0.21", size = 10)
+
+cor.ci(df[,c("im","cont")], method = "kendall")
+
+
+d.cor <- df[,c("im","geq_im","geq_flow","geq_cha", "geq_tens", "geq_pa", "geq_na", "aut", "comp", "cont")]
+names(d.cor) <- c("enj","geq_im","geq_flow","geq_cha", "geq_tens", "geq_pa", "geq_na", "aut", "comp", "cont")
+  
+cor.ci(d.cor, method = "kendall")
+pairs.panels(d.cor,pch=".", method = "kendall", jiggle=TRUE, scale=TRUE)
+```
+
+
+## Depression Quest only
+```{r}
+dat <- df[df$game=="Depression Quest",c("im","aut","comp","geq_na","geq_tens","cont")]
+names(dat) <- c("Enjoy","Aut","Comp","NegA","Tension","Contem")
+cor.ci(dat, method="kendall")
+pairs.panels(dat,pch=".", method = "kendall", jiggle=TRUE, scale=TRUE)
+
+```
+
+## Spider Plots
+
+```{r}
+# spider diagram with r
+library(fmsb)
+
+maxmin <- data.frame(
+  im=c(7, 1),
+  aut=c(7, 1),
+  comp=c(7, 1),
+  geq_cha=c(7, 1),
+  geq_na=c(7, 1),
+  cont=c(7, 1))
+#dat <- rbind(maxmin,dat)
+
+dat <- df[,c("game","im", "aut", "comp", "geq_cha", "geq_na", "cont")]
+means <- aggregate(im ~  game, dat, mean)
+dat$game <- factor(dat$game, levels = as.character(means[ order(means$im, decreasing = T), "game"]))
+
+op <- par(mar=c(1, 2, 2, 1),mfrow=c(4, 4))
+for (i in levels(dat$game)) {
+  dat.o <- rbind(maxmin, colMeans(dat[dat$game == i,-1]))
+  dat.o <- rbind(dat.o, colMeans(dat[2:7]))
+  names(dat.o) <- c("Enjoy", "Aut", "Comp", "Chal", "NegA", "Contem")
+  radarchart(dat.o, axistype=1, plwd=1:2, pcol=c(rainbow(c(1)),"#6b6b6b"), centerzero=F, 
+             seg=6, caxislabels=c(1:7),
+             title=i)
+}
+```
+
