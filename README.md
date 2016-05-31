@@ -1,6 +1,6 @@
 # GameLog Daten Überblick
 
-Dieses Repository enthält anonymisierte Daten des GameLogs und ein paar Plot-Beispiele.
+Dieses Repository enthält anonymisierte Daten des GameLogs und ein paar Plot Beispiele.
 
 Eine Vorschau gibt es hier: http://rpubs.com/psyFlo/game-log
 
